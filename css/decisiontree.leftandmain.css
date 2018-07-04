@@ -1,0 +1,88 @@
+/* Styling of the DecisionTreeStepPreview */
+.decisiontree-table {
+	min-width: 100%;
+	table-layout: fixed;
+}
+
+.decisiontree-table td {
+	text-align: center;
+	vertical-align: top;
+	padding: 10px;
+}
+
+.question {
+	display: inline-block;
+	padding: 10px;
+	border: 1px solid grey;
+	background: white;
+	position: relative;
+}
+
+.question--result {
+	background-color: #F1F1F1;
+	border: 1px solid black;
+}
+
+.answer {
+	display: inline-block;
+	padding: 10px;
+	position: relative;
+}
+
+.tr-answers {
+	border-top: 1px solid black;
+}
+
+.question:after {
+	content: '';
+	position: absolute;
+	width: 1px;
+	height: 10px;
+	border-left: 1px solid black;
+	top: 100%;
+	left: 50%;
+}
+
+.question--result:after,
+.question--ghost:after {
+	display: none;
+}
+
+.question--ghost {
+	background: none;
+	border-style: dotted;
+}
+
+.question--current {
+	border-color: #2fac83;
+	background-color: #F1F9F9;
+}
+
+.answer:before {
+	content: '';
+	position: absolute;
+	width: 1px;
+	height: 10px;
+	border-left: 1px solid black;
+	bottom: 100%;
+	left: 50%;
+}
+
+.answer:after {
+	content: '';
+	position: absolute;
+	width: 1px;
+	height: 10px;
+	border-left: 1px solid black;
+	top: 100%;
+	left: 50%;
+}
+
+/* Styling of the the HasOneSelectOrCreate field */
+.hasoneselectorcreate .dropdown {
+	border-bottom: none;
+}
+.hasoneselectorcreate .hasonebutton {
+	margin-left: 184px;
+}
+

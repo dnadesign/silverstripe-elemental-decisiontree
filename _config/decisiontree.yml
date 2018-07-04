@@ -1,0 +1,6 @@
+---
+Name: decisiontree
+---
+LeftAndMain:
+  extra_requirements_css:
+    - decision-tree/css/decisiontree.leftandmain.css
