@@ -33,15 +33,20 @@ class DecisionTreeAnswer extends DataObject
 		$question->setTitle('Answer for');
 		$fields->insertBefore($question, 'Title');
 
-		// Set up Step Selector
-		$availableStepsID = DecisionTreeStep::get_orphans()->column('ID');
-		if ($this->ResultingStep()->exists()) {
-			array_push($availableStepsID, $this->ResultingStepID);
+		if ($this->IsInDB()) {
+			// Set up Step Selector
+			$availableStepsID = DecisionTreeStep::get_orphans()->column('ID');
+			if ($this->ResultingStep()->exists()) {
+				array_push($availableStepsID, $this->ResultingStepID);
+			}
+
+			$stepSelector = HasOneSelectOrCreateField::create('ResultingStep', 'If selected, go to', DecisionTreeStep::get()->filter('ID', $availableStepsID)->map(), $this->ResultingStep(), $this);
+
+			$fields->addFieldsToTab('Root.Main', $stepSelector);
+		} else {
+			$info = LiteralField::create('info', sprintf('<p class="message info notice">%s</p>', 'Save this answer in order to add a following step.'));
+			$fields->addFieldToTab('Root.Main', $info);
 		}
-
-		$stepSelector = HasOneSelectOrCreateField::create('ResultingStep', 'If selected, go to', DecisionTreeStep::get()->filter('ID', $availableStepsID)->map(), $this->ResultingStep(), $this);
-
-		$fields->addFieldsToTab('Root.Main', $stepSelector);
 
 		return $fields;
 	}

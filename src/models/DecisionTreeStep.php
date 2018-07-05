@@ -5,7 +5,8 @@ class DecisionTreeStep extends DataObject
 	private static $db = [
 		'Title' => 'Varchar(255)',
 		'Type' => "Enum('Question, Result')",
-		'Content' => 'HTMLText'
+		'Content' => 'HTMLText',
+		'HideTitle' => 'Boolean'
 	];
 
 	private static $has_many = [
@@ -31,6 +32,11 @@ class DecisionTreeStep extends DataObject
 		$content->setRows(4);
 
 		$fields->removeByName('Answers');
+
+		// Allow to hide the title only on Result
+		$hideTitle = CheckboxField::create('HideTitle', 'HideTitle');
+		$hideTitle->displayIf('Type')->isEqualTo('Result')->end();
+		$fields->insertAfter($hideTitle, 'Title');
 
 		if ($this->IsInDB()) {
 			// Display Parent Answer

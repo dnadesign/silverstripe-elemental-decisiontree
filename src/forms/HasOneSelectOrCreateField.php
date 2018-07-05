@@ -20,7 +20,7 @@ class HasOneSelectOrCreateField extends CompositeField {
 	protected $dropdown;
 	protected $gridfield;
 
-	public function __construct($name, $title, $options = array(), $current = null, $parent)
+	public function __construct($name, $title, $options, $current = null, $parent)
 	{
 		$this->name = $name;
 		$this->title = $title;
@@ -40,7 +40,7 @@ class HasOneSelectOrCreateField extends CompositeField {
 		if ($current && $current->exists()) {
 			$name = ($current->Title) ? $current->Title : $current->Name;
 			if ($name) {
-				$button->setButtonName('Edit '.$label);
+				$button->setButtonName('Edit '.FormField::name_to_label($name));
 			}
 		} else {
 			$button->setButtonName('Create '.$label);

@@ -68,7 +68,7 @@ class ElementDecisionTree_Controller extends BaseElement_Controller {
 
 		// Requires javascript to be included too
 		// But it is usually included in theme js
-		Requirements::javascript(DECISION_TREE_PATH.'/js/decision-tree.src.js');
+		Requirements::javascript(DECISION_TREE_PATH.'/javascript/decision-tree.src.js');
 	}
 
 	/**

@@ -12,7 +12,7 @@
 				step = form.parent('.step'),
 				nextstep_holder = step.find('> .nextstep');
 
-				nextstep_holder.html('<div class="spinner-holder"><div class="spinner"></div></div>');
+				nextstep_holder.html('<div class="spinner-holder"><div class="spinner"><span class="sr-only">loading</span></div></div>');
 				setTimeout(function() {
 					nextstep_holder.addClass('loading');
 				}, 100);

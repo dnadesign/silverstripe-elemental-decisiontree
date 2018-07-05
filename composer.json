@@ -1,16 +1,14 @@
 {
-	"name": "dnadesign/decision-tree",
+	"name": "dnadesign/silverstripe-elemental-decisiontree",
 	"description": "Element displaying information in regards to answers given to questions",
 	"type": "silverstripe-module",
-	"keywords": ["silverstripe", "element", "decision tree"],
+	"keywords": ["silverstripe", "element", "elemental", "decision tree"],
 	"license": "BSD-3-Clause",
 	"authors": [{
 		"name": "Alexandre Saelens",
 		"email": "alexandre.saelens@dna.co.nz"
 	}],
 	"require": {
-		"silverstripe/framework": "~3.1",
-		"silverstripe/cms": "~3.1",
 		"dnadesign/silverstripe-elemental": "1.x-dev",
 		"silvershop/silverstripe-hasonefield": "1.x-dev"
 	}
