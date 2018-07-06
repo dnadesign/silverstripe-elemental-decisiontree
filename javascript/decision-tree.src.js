@@ -23,6 +23,7 @@
 					dataType: 'json',
 					data    : form.serialize(),
 					success : function( data ) {
+						nextstep_holder.addClass('new-content-loaded');
 						nextstep_holder.html(data.html);
 						window.history.pushState(null, null, data.nexturl);
 					},
@@ -30,7 +31,9 @@
 						nextstep_holder.html(xhr.responseText);
 					}
 				}).always(function() {
-					nextstep_holder.removeClass('loading');
+					setTimeout(function() {
+						nextstep_holder.removeClass('loading new-content-loaded');
+					}, 100);
 				});
 		});
 
