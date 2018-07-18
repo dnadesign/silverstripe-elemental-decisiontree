@@ -24,6 +24,8 @@ class DecisionTreeStep extends DataObject
 		'getAnswerTreeForGrid' => 'Answers'
 	];
 
+	private static $default_result_title = 'Our recommendation';
+
 	public function getCMSFields()
 	{
 		$fields = parent::getCMSFields();
@@ -63,6 +65,18 @@ class DecisionTreeStep extends DataObject
 		}
 
 		return $fields;
+	}
+
+	/**
+	* Set default title on Result steps
+	*/
+	public function onBeforeWrite()
+	{
+		if ($this->Type == 'Result' && !$this->Title) {
+			$this->Title = $this->config()->default_result_title;
+		}
+
+		parent::onBeforeWrite();
 	}
 
 	/**
