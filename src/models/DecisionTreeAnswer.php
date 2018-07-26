@@ -52,11 +52,29 @@ class DecisionTreeAnswer extends DataObject
 	}
 
 	/**
+	* Permissions
+	*/
+	public function canCreate($member = null) 
+	{
+		return singleton('ElementDecisionTree')->canCreate($member);
+	}
+
+	public function canView($member = null)
+	{
+		return singleton('ElementDecisionTree')->canCreate($member);
+	}
+
+	public function canEdit($member = null) 
+	{
+		return singleton('ElementDecisionTree')->canCreate($member);
+	}
+
+	/**
 	* Can only delete an answer that doesn't have a dependant question
 	*/
 	public function canDelete($member = null)
 	{
-		$canDelete = parent::canDelete($member);
+		$canDelete = singleton('ElementDecisionTree')->canDelete($member);
 		return ($canDelete && !$this->ResultingStep()->exists());
 	}
 

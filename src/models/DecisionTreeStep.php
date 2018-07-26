@@ -80,11 +80,29 @@ class DecisionTreeStep extends DataObject
 	}
 
 	/**
+	* Permissions
+	*/
+	public function canCreate($member = null) 
+	{
+		return singleton('ElementDecisionTree')->canCreate($member);
+	}
+
+	public function canView($member = null)
+	{
+		return singleton('ElementDecisionTree')->canCreate($member);
+	}
+
+	public function canEdit($member = null) 
+	{
+		return singleton('ElementDecisionTree')->canCreate($member);
+	}
+
+	/**
 	* Prevent deleting Step with answers that have dependant questions
 	*/
 	public function candelete($member = null)
 	{
-		$canDelete = parent::canDelete($member);
+		$canDelete = singleton('ElementDecisionTree')->canDelete($member);
 
 		foreach($this->Answers() as $answer) {
 			if (!$answer->canDelete()) {
