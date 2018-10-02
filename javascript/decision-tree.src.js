@@ -9,6 +9,7 @@
 		*/
 		$(document).on( 'change', 'input[name=stepanswerid] ', function() {
 			var form = $(this).parents('form'),
+				tree = form.parents('.ElementDecisionTree'),
 				step = form.parent('.step'),
 				nextstep_holder = step.find('> .nextstep');
 
@@ -26,6 +27,13 @@
 						nextstep_holder.addClass('new-content-loaded');
 						nextstep_holder.html(data.html);
 						window.history.pushState(null, null, data.nexturl);
+
+						// Toggle wrapper class so we know if the form is complete
+						if( isFormComplete(nextstep_holder) ) {
+							tree.find('.decisiontree').addClass('decisiontree--complete');
+						} else {
+							tree.find('.decisiontree').removeClass('decisiontree--complete');
+						}
 					},
 					error   : function( xhr, err ) {
 						nextstep_holder.html(xhr.responseText);
@@ -57,9 +65,26 @@
 				        scrollTop: $(tree).offset().top - 150
 				    }, 500);
 				    window.history.pushState(null, null, button.data('target'));
+
+					// Reset wrapper class
+					tree.find('.decisiontree').removeClass('decisiontree--complete');
 				});
 			}
 		});
 
+		// Add wrapper class on page load if form is complete
+		$('.decisiontree').each( function() {
+			var tree = $(this);
+
+			if ( isFormComplete (tree) ) {
+				tree.addClass('decisiontree--complete');
+			}
+		});
+
 	});
+
+	function isFormComplete(wrapper) {
+		return ( wrapper.find('.step--result').length > 0 ) ? true : false;
+	}
+
 })(jQuery);
