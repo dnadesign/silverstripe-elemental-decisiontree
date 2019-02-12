@@ -7,3 +7,5 @@
 		<% include DecisionTreeStep Step=$FirstStep, Controller=$Controller %>
 	</div>
 </div>
+
+<% require javascript(dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js') %>

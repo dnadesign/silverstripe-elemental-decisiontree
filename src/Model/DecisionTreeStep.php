@@ -1,387 +1,383 @@
 <?php
 
+namespace DNADesign\SilverStripeElementalDecisionTree\Model;
+
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\GridField\GridField;
+
 class DecisionTreeStep extends DataObject
 {
-	private static $db = [
-		'Title' => 'Varchar(255)',
-		'Type' => "Enum('Question, Result')",
-		'Content' => 'HTMLText',
-		'HideTitle' => 'Boolean'
-	];
+    private static $db = [
+        'Title' => 'Varchar(255)',
+        'Type' => "Enum('Question, Result')",
+        'Content' => 'HTMLText',
+        'HideTitle' => 'Boolean'
+    ];
 
-	private static $has_many = [
-		'Answers' => 'DecisionTreeAnswer.Question'
-	];
+    private static $has_many = [
+        'Answers' => DecisionTreeAnswer::class
+    ];
 
-	private static $belongs_to = [
-		'ParentAnswer' => 'DecisionTreeAnswer.ResultingStep',
-		'ParentElement' => 'ElementDecisionTree.FirstStep'
-	];
+    private static $owns = [
+        'Answers'
+    ];
 
-	private static $summary_fields = [
-		'ID' => 'ID',
-		'Title' => 'Title',
-		'getAnswerTreeForGrid' => 'Answers'
-	];
+    private static $cascade_deletes = [
+        'Answers'
+    ];
 
-	private static $default_result_title = 'Our recommendation';
+    private static $table_name = 'DecisionTreeStep';
 
-	public function getCMSFields()
-	{
-		$fields = parent::getCMSFields();
+    private static $belongs_to = [
+        'ParentAnswer' => DecisionTreeAnswer::class,
+        'ParentElement' => ElementDecisionTree::class
+    ];
 
-		$content = $fields->dataFieldByname('Content');
-		$content->setRows(4);
+    private static $summary_fields = [
+        'ID' => 'ID',
+        'Title' => 'Title',
+        'getAnswerTreeForGrid' => 'Answers'
+    ];
 
-		$fields->removeByName('Answers');
+    private static $default_result_title = 'Our recommendation';
 
-		// Allow to hide the title only on Result
-		$hideTitle = CheckboxField::create('HideTitle', 'HideTitle');
-		$hideTitle->displayIf('Type')->isEqualTo('Result')->end();
-		$fields->insertAfter($hideTitle, 'Title');
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		if ($this->IsInDB()) {
-			// Display Parent Answer
-			if ($this->ParentAnswer()->exists()) {
-				$parentAnswerTitle = ReadOnlyField::create('ParentAnswerTitle', 'Parent Answer', $this->ParentAnswer()->TitleWithQuestion());
-				$fields->addFieldToTab('Root.Main', $parentAnswerTitle, 'Title');
-			}
+        $content = $fields->dataFieldByname('Content');
+        $content->setRows(4);
 
-			// List answers
-			$answerConfig = GridFieldConfig_RecordEditor::create();
-			$answerConfig->addComponent(new GridFieldOrderableRows('Sort'));
-			$answerGrid = GridField::create(
-				'Answers',
-				'Answers',
-				$this->Answers(),
-				$answerConfig
-			);
+        $fields->removeByName('Answers');
 
-			$fields->addFieldTotab('Root.Main', DisplayLogicWrapper::create($answerGrid)->displayUnless('Type')->isEqualTo('Result')->end());
+        // Allow to hide the title only on Result
+        $hideTitle = CheckboxField::create('HideTitle', 'HideTitle');
+        $hideTitle->displayIf('Type')->isEqualTo('Result')->end();
+        $fields->insertAfter($hideTitle, 'Title');
 
-			// Add Tree Preview
-			// Note: cannot add it if the object is not in DB
-			$fields->addFieldToTab('Root.Tree', DecisionTreeStepPreview::create('Tree', $this->getTreeOrigin()));
-		}
+        if ($this->IsInDB()) {
+            // Display Parent Answer
+            if ($this->ParentAnswer()->exists()) {
+                $parentAnswerTitle = ReadOnlyField::create('ParentAnswerTitle', 'Parent Answer', $this->ParentAnswer()->TitleWithQuestion());
+                $fields->addFieldToTab('Root.Main', $parentAnswerTitle, 'Title');
+            }
 
-		return $fields;
-	}
+            // List answers
+            $answerConfig = GridFieldConfig_RecordEditor::create();
+            $answerConfig->addComponent(new GridFieldOrderableRows('Sort'));
+            $answerGrid = GridField::create(
+                'Answers',
+                'Answers',
+                $this->Answers(),
+                $answerConfig
+            );
 
-	/**
-	* Set default title on Result steps
-	*/
-	public function onBeforeWrite()
-	{
-		if ($this->Type == 'Result' && !$this->Title) {
-			$this->Title = $this->config()->default_result_title;
-		}
+            $fields->addFieldTotab('Root.Main', DisplayLogicWrapper::create($answerGrid)->displayUnless('Type')->isEqualTo('Result')->end());
 
-		parent::onBeforeWrite();
-	}
+            // Add Tree Preview
+            // Note: cannot add it if the object is not in DB
+            $fields->addFieldToTab('Root.Tree', DecisionTreeStepPreview::create('Tree', $this->getTreeOrigin()));
+        }
 
-	/**
-	* Permissions
-	*/
-	public function canCreate($member = null) 
-	{
-		return singleton('ElementDecisionTree')->canCreate($member);
-	}
+        return $fields;
+    }
 
-	public function canView($member = null)
-	{
-		return singleton('ElementDecisionTree')->canCreate($member);
-	}
+    /**
+    * Set default title on Result steps
+    */
+    public function onBeforeWrite()
+    {
+        if ($this->Type == 'Result' && !$this->Title) {
+            $this->Title = $this->config()->default_result_title;
+        }
 
-	public function canEdit($member = null) 
-	{
-		return singleton('ElementDecisionTree')->canCreate($member);
-	}
+        parent::onBeforeWrite();
+    }
 
-	/**
-	* Prevent deleting Step with answers that have dependant questions
-	*/
-	public function candelete($member = null)
-	{
-		$canDelete = singleton('ElementDecisionTree')->canDelete($member);
+    public function canCreate($member = null, $context = [])
+    {
+        return singleton(ElementDecisionTree::class)->canCreate($member, $context);
+    }
 
-		foreach($this->Answers() as $answer) {
-			if (!$answer->canDelete()) {
-				$canDelete = false;
-			}
-		}
+    public function canView($member = null)
+    {
+        return singleton(ElementDecisionTree::class)->canCreate($member);
+    }
 
-		return $canDelete;
-	}
+    public function canEdit($member = null)
+    {
+        return singleton(ElementDecisionTree::class)->canCreate($member);
+    }
 
-	/**
-	* When deleting a step, delete also its answers if they don't have a subsequent question
-	*/
-	public function onBeforeDelete()
-	{
-		parent::onBeforeDelete();
+    public function canDelete($member = null)
+    {
+        $canDelete = singleton(ElementDecisionTree::class)->canDelete($member);
 
-		foreach($this->Answers() as $answer) {
-			if ($answer->canDelete()) {
-				$asnwer->delete();
-			}
-		}
-	}
+        foreach($this->Answers() as $answer) {
+            if (!$answer->canDelete()) {
+                $canDelete = false;
+            }
+        }
 
-	/**
-	* Return a readable list of the answer title and the title of the question
-	* which will be displayed if the answer is selected
-	* Used for Gridfield
-	*
-	* @return HTMLText
-	*/
-	public function getAnswerTreeForGrid()
-	{
-		$output = '';
-		if ($this->Answers()->Count()) {
-			foreach($this->Answers() as $answer) {
-				$output .= $answer->Title;
-				if ($answer->ResultingStep()) {
-					$output .= ' => '.$answer->ResultingStep()->Title;
-				}
-				$output .= '<br/>';
-			}
-		}
+        return $canDelete;
+    }
 
-		$html = HTMLText::create('Answers');
-		$html->setValue($output);
+    /**
+    * Return a readable list of the answer title and the title of the question
+    * which will be displayed if the answer is selected
+    * Used for Gridfield
+    *
+    * @return HTMLText
+    */
+    public function getAnswerTreeForGrid()
+    {
+        $output = '';
+        if ($this->Answers()->Count()) {
+            foreach($this->Answers() as $answer) {
+                $output .= $answer->Title;
+                if ($answer->ResultingStep()) {
+                    $output .= ' => '.$answer->ResultingStep()->Title;
+                }
+                $output .= '<br/>';
+            }
+        }
 
-		return $html;
-	}
+        $html = HTMLText::create('Answers');
+        $html->setValue($output);
 
-	/**
-	* Outputs an optionset to allow user to select an answer to the question
-	*
-	* @return OptionsetField
-	*/
-	public function getAnswersOptionset()
-	{
-		$source = array();
-		foreach($this->Answers() as $answer) {
-			$source[$answer->ID] = $answer->Title;
-		}
+        return $html;
+    }
 
-		return OptionsetField::create('stepanswerid', '', $source)->addExtraClass('decisiontree-option');
-	}
+    /**
+    * Outputs an optionset to allow user to select an answer to the question
+    *
+    * @return OptionsetField
+    */
+    public function getAnswersOptionset()
+    {
+        $source = array();
+        foreach($this->Answers() as $answer) {
+            $source[$answer->ID] = $answer->Title;
+        }
 
-	/**
-	* Return the DecisionAnswer rsponsible for displaying this step
-	*
-	* @return DecisionTreeAnswer
-	*/
-	public function getParentAnswer()
-	{
-		return DecisionTreeAnswer::get()->filter('ResultingStepID', $this->ID)->First();
-	}
+        return OptionsetField::create('stepanswerid', '', $source)->addExtraClass('decisiontree-option');
+    }
 
-	/**
-	* Return the list of DecisionTreeAnswer ID
-	* leading to this step being displayed
-	*
-	* @return Array
-	*/
-	public function getAnswerPathway(&$idList = array())
-	{
-		if ($answer = $this->getParentAnswer()) {
-			array_push($idList, $answer->ID);
-			if ($question = $answer->Question()) {
-				$question->getAnswerPathway($idList);
-			}
-		}
+    /**
+    * Return the DecisionAnswer rsponsible for displaying this step
+    *
+    * @return DecisionTreeAnswer
+    */
+    public function getParentAnswer()
+    {
+        return DecisionTreeAnswer::get()->filter('ResultingStepID', $this->ID)->First();
+    }
 
-		return $idList;
-	}
+    /**
+    * Return the list of DecisionTreeAnswer ID
+    * leading to this step being displayed
+    *
+    * @return Array
+    */
+    public function getAnswerPathway(&$idList = array())
+    {
+        if ($answer = $this->getParentAnswer()) {
+            array_push($idList, $answer->ID);
+            if ($question = $answer->Question()) {
+                $question->getAnswerPathway($idList);
+            }
+        }
 
-	/**
-	* Return the list of DecisionTreeStep ID
-	* leading to this step being displayed
-	*
-	* @return Array
-	*/
-	public function getQuestionPathway(&$idList = array())
-	{
-		array_push($idList, $this->ID);
-		if ($answer = $this->getParentAnswer()) {
-			if ($question = $answer->Question()) {
-				$question->getQuestionPathway($idList);
-			}
-		}
+        return $idList;
+    }
 
-		return $idList;
-	}
+    /**
+    * Return the list of DecisionTreeStep ID
+    * leading to this step being displayed
+    *
+    * @return Array
+    */
+    public function getQuestionPathway(&$idList = array())
+    {
+        array_push($idList, $this->ID);
+        if ($answer = $this->getParentAnswer()) {
+            if ($question = $answer->Question()) {
+                $question->getQuestionPathway($idList);
+            }
+        }
 
-	/**
-	* Builds an array of question and answers leading to this Step
-	* Each entry is an array which key is either 'question' or 'answer'
-	* and value is the ID of the object
-	* Note: the array is in reverse order
-	*
-	* @return Array
-	*/
-	public function getFullPathway(&$path = array())
-	{
-		if ($answer = $this->getParentAnswer()) {
-			array_push($path, array('question' => $this->ID));
-			array_push($path, array('answer' => $answer->ID));
-			if ($question = $answer->Question()) {
-				$question->getFullPathway($path);
-			}
-		} else {
-			array_push($path, array('question' => $this->ID));
-		}
+        return $idList;
+    }
 
-		return $path;
-	}
+    /**
+    * Builds an array of question and answers leading to this Step
+    * Each entry is an array which key is either 'question' or 'answer'
+    * and value is the ID of the object
+    * Note: the array is in reverse order
+    *
+    * @return Array
+    */
+    public function getFullPathway(&$path = array())
+    {
+        if ($answer = $this->getParentAnswer()) {
+            array_push($path, array('question' => $this->ID));
+            array_push($path, array('answer' => $answer->ID));
+            if ($question = $answer->Question()) {
+                $question->getFullPathway($path);
+            }
+        } else {
+            array_push($path, array('question' => $this->ID));
+        }
 
-	/**
-	* Find the very first DecisionStep in the tree
-	*
-	* @return DecisionTreeStep
-	*/
-	public function getTreeOrigin()
-	{
-		$pathway = array_reverse($this->getQuestionPathway());
-		return DecisionTreeStep::get()->byID($pathway[0]);
-	}
+        return $path;
+    }
 
-	/**
-	* Return this step position in the pathway
-	* Used to number step on the front end
-	*
-	* @return Int
-	*/
-	public function getPositionInPathway()
-	{
-		$pathway = array_reverse($this->getFullPathway());
-		// Pathway has both questions and answers
-		// so need to retain ids of questions only
-		$id = array_column($pathway, 'question');
+    /**
+    * Find the very first DecisionStep in the tree
+    *
+    * @return DecisionTreeStep
+    */
+    public function getTreeOrigin()
+    {
+        $pathway = array_reverse($this->getQuestionPathway());
+        return DecisionTreeStep::get()->byID($pathway[0]);
+    }
 
-		$pos = array_search($this->ID, $id);
+    /**
+    * Return this step position in the pathway
+    * Used to number step on the front end
+    *
+    * @return Int
+    */
+    public function getPositionInPathway()
+    {
+        $pathway = array_reverse($this->getFullPathway());
+        // Pathway has both questions and answers
+        // so need to retain ids of questions only
+        $id = array_column($pathway, 'question');
 
-		return ($pos === false) ? 0 : $pos + 1;
-	}
+        $pos = array_search($this->ID, $id);
 
-	/**
-	* Return a DataList of DecisionTreeStep that do not belong to a Tree
-	*
-	* @return DataList
-	*/
-	public static function get_orphans()
-	{
-		$orphans = DecisionTreeStep::get()->filterByCallback(function($item) {
-			return !$item->belongsToTree();
-		});
+        return ($pos === false) ? 0 : $pos + 1;
+    }
 
-		return DecisionTreeStep::get()->filter('ID', $orphans->column('ID'));
-	}
+    /**
+    * Return a DataList of DecisionTreeStep that do not belong to a Tree
+    *
+    * @return DataList
+    */
+    public static function get_orphans()
+    {
+        $orphans = DecisionTreeStep::get()->filterByCallback(function($item) {
+            return !$item->belongsToTree();
+        });
 
-	/**
-	* Return a DataList of all DecisionTreeStep that do not belong to an answer
-	* ie. are the first child of a element
-	*
-	* @return DataList
-	*/
-	public static function get_initial_steps()
-	{
-		$intial = DecisionTreeStep::get()->filterByCallback(function($item) {
-			return !$item->belongsToAnswer();
-		});
+        return DecisionTreeStep::get()->filter('ID', $orphans->column('ID'));
+    }
 
-		return DecisionTreeStep::get()->filter('ID', $intial->column('ID'))->exclude('Type', 'Result');
-	}
+    /**
+    * Return a DataList of all DecisionTreeStep that do not belong to an answer
+    * ie. are the first child of a element
+    *
+    * @return DataList
+    */
+    public static function get_initial_steps()
+    {
+        $intial = DecisionTreeStep::get()->filterByCallback(function($item) {
+            return !$item->belongsToAnswer();
+        });
 
-	/**
-	*
-	*/
-	public function belongsToTree()
-	{
-		return ($this->belongsToElement() || $this->belongsToAnswer());
-	}
+        return DecisionTreeStep::get()->filter('ID', $intial->column('ID'))->exclude('Type', 'Result');
+    }
 
-	/**
-	*
-	*/
-	public function belongsToElement()
-	{
-		return (ElementDecisionTree::get()->filter('FirstStepID', $this->ID)->Count() > 0);
-	}
+    /**
+    *
+    */
+    public function belongsToTree()
+    {
+        return ($this->belongsToElement() || $this->belongsToAnswer());
+    }
 
-	/**
-	*
-	*/
-	public function belongsToAnswer()
-	{
-		return ($this->ParentAnswer() && $this->ParentAnswer()->exists());
-	}
+    /**
+    *
+    */
+    public function belongsToElement()
+    {
+        return (ElementDecisionTree::get()->filter('FirstStepID', $this->ID)->Count() > 0);
+    }
 
-	/**
-	* Checks if this object is currently being edited in the CMS
-	* by comparing its ID with the one in the request
-	*
-	* @return Boolean
-	*/
-	public function IsCurrentlyEdited()
-	{
-		$request = Controller::curr()->getRequest();
-		$class = $request->param('FieldName');
-		$currentID = $request->param('ID');
+    /**
+    *
+    */
+    public function belongsToAnswer()
+    {
+        return ($this->ParentAnswer() && $this->ParentAnswer()->exists());
+    }
 
-		$stepRelationships = ['ResultingStep', 'FirstStep'];
+    /**
+    * Checks if this object is currently being edited in the CMS
+    * by comparing its ID with the one in the request
+    *
+    * @return Boolean
+    */
+    public function IsCurrentlyEdited()
+    {
+        $request = Controller::curr()->getRequest();
+        $class = $request->param('FieldName');
+        $currentID = $request->param('ID');
 
-		if ($currentID && in_array($class, $stepRelationships)) {
-			return  $currentID == $this->ID;
-		}
+        $stepRelationships = ['ResultingStep', 'FirstStep'];
 
-		return false;
-	}
+        if ($currentID && in_array($class, $stepRelationships)) {
+            return  $currentID == $this->ID;
+        }
 
-	/**
-	* Create a link that allowd to edit this object in the CMS
-	* To do this, it rewinds the tree up to the element
-	* then append its edit url to the edit url of its parent question
-	*
-	* @return String
-	*/
-	public function CMSEditLink() {
-		$origin = $this->getTreeOrigin();
-		if ($origin) {
-			$root = $origin->ParentElement();
-			if ($root) {
-				$url = Controller::join_links($root->CMSEditFirstStepLink(), $this->getRecursiveEditPath());
-				return $url;
-			}
-		}
-	}
+        return false;
+    }
 
-	/**
-	* Build url to allow to edit this object
-	*
-	* @return String
-	*/
-	public function getRecursiveEditPath()
-	{
-		$pathway = array_reverse($this->getFullPathway());
-		unset($pathway[0]); // remove first question
+    /**
+    * Create a link that allowd to edit this object in the CMS
+    * To do this, it rewinds the tree up to the element
+    * then append its edit url to the edit url of its parent question
+    *
+    * @return String
+    */
+    public function CMSEditLink() {
+        $origin = $this->getTreeOrigin();
+        if ($origin) {
+            $root = $origin->ParentElement();
+            if ($root) {
+                $url = Controller::join_links($root->CMSEditFirstStepLink(), $this->getRecursiveEditPath());
+                return $url;
+            }
+        }
+    }
 
-		$url = '';
-		foreach($pathway as $step) {
-			if (is_array($step) && !empty($step)) {
-				$type = array_keys($step)[0];
-				$id = $step[$type];
+    /**
+    * Build url to allow to edit this object
+    *
+    * @return String
+    */
+    public function getRecursiveEditPath()
+    {
+        $pathway = array_reverse($this->getFullPathway());
+        unset($pathway[0]); // remove first question
 
-				if ($type == 'question') {
-					$url .= '/ItemEditForm/field/ResultingStep/item/'.$id;
-				} else if ($type == 'answer') {
-					$url .= '/ItemEditForm/field/Answers/item/'.$id;
-				}
-			}
-		}
+        $url = '';
+        foreach($pathway as $step) {
+            if (is_array($step) && !empty($step)) {
+                $type = array_keys($step)[0];
+                $id = $step[$type];
 
-		return $url;
-	}
+                if ($type == 'question') {
+                    $url .= '/ItemEditForm/field/ResultingStep/item/'.$id;
+                } else if ($type == 'answer') {
+                    $url .= '/ItemEditForm/field/Answers/item/'.$id;
+                }
+            }
+        }
+
+        return $url;
+    }
 }

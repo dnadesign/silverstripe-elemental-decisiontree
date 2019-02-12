@@ -1,8 +1,8 @@
 <?php
 
-namespace DNADesign\SilverStripeElementalDecisionTree\Form;
+namespace DNADesign\SilverStripeElementalDecisionTree\Forms;
 
-use SilverStripe\Forms\FormField
+use SilverStripe\Forms\FormField;
 
 /**
  * This form field is used to display the DecisionTree in the edit form of any
@@ -28,6 +28,7 @@ class DecisionTreeStepPreview extends FormField
     public function setStep($step)
     {
         $this->step = $step;
+
         return $this;
     }
 }

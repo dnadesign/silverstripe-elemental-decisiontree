@@ -1,154 +1,170 @@
 <?php
 
-namespace DNADesign\SilverStripeElementalDecisionTree\Models;
+namespace DNADesign\SilverStripeElementalDecisionTree\Model;
+
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Control\Controller;
+use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 
 class DecisionTreeAnswer extends DataObject
 {
-	private static $db = [
-		'Title' => 'Varchar(255)',
-		'Sort' => 'Int'
-	];
+    private static $db = [
+        'Title' => 'Varchar(255)',
+        'Sort' => 'Int'
+    ];
 
-	private static $has_one = [
-		'Question' => 'DecisionTreeStep',
-		'ResultingStep' => 'DecisionTreeStep'
-	];
+    private static $has_one = [
+        'Question' => DecisionTreeStep::class,
+        'ResultingStep' => DecisionTreeStep::class
+    ];
 
-	private static $summary_fields = [
-		'ID' => 'ID',
-		'Title' => 'Title',
-		'ResultingStep.Title' => 'Resulting Step'
-	];
+    private static $summary_fields = [
+        'ID' => 'ID',
+        'Title' => 'Title',
+        'ResultingStep.Title' => 'Resulting Step'
+    ];
 
-	private static $default_sort = 'Sort ASC';
+    private static $table_name = 'DecisionTreeAnswer';
 
-	public function getCMSFields()
-	{
-		$fields = parent::getCMSFields();
+    private static $default_sort = 'Sort ASC';
 
-		// Remove un-necessary fields
-		$fields->removeByName('ResultingStepID');
-		$fields->removeByName('Sort');
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
 
-		// Update Parent Question
-		$question = $fields->dataFieldByName('QuestionID');
-		$question->setTitle('Answer for');
-		$fields->insertBefore($question, 'Title');
+        // Remove un-necessary fields
+        $fields->removeByName('ResultingStepID');
+        $fields->removeByName('Sort');
 
-		if ($this->IsInDB()) {
-			// Set up Step Selector
-			$availableStepsID = DecisionTreeStep::get_orphans()->column('ID');
-			if ($this->ResultingStep()->exists()) {
-				array_push($availableStepsID, $this->ResultingStepID);
-			}
+        // Update Parent Question
+        $question = $fields->dataFieldByName('QuestionID');
+        $question->setTitle('Answer for');
+        $fields->insertBefore($question, 'Title');
 
-			$stepSelector = HasOneSelectOrCreateField::create('ResultingStep', 'If selected, go to', DecisionTreeStep::get()->filter('ID', $availableStepsID)->map(), $this->ResultingStep(), $this);
+        if ($this->IsInDB()) {
+            // Set up Step Selector
+            $availableStepsID = DecisionTreeStep::get_orphans()->column('ID');
 
-			$fields->addFieldsToTab('Root.Main', $stepSelector);
-		} else {
-			$info = LiteralField::create('info', sprintf('<p class="message info notice">%s</p>', 'Save this answer in order to add a following step.'));
-			$fields->addFieldToTab('Root.Main', $info);
-		}
+            if ($this->ResultingStep()->exists()) {
+                array_push($availableStepsID, $this->ResultingStepID);
+            }
 
-		return $fields;
-	}
+            $steps = DecisionTreeStep::get()->filter('ID', $availableStepsID)->map();
 
-	/**
-	* Permissions
-	*/
-	public function canCreate($member = null)
-	{
-		return singleton('ElementDecisionTree')->canCreate($member);
-	}
+            $stepSelector = HasOneSelectOrCreateField::create(
+                $this, 'ResultingStep', 'If selected, go to', $steps, $this->ResultingStep(), $this
+            );
 
-	public function canView($member = null)
-	{
-		return singleton('ElementDecisionTree')->canCreate($member);
-	}
+            $fields->addFieldsToTab('Root.Main', $stepSelector);
+        } else {
+            $info = LiteralField::create('info', sprintf('<p class="message info notice">%s</p>', 'Save this answer in order to add a following step.'));
+            $fields->addFieldToTab('Root.Main', $info);
+        }
 
-	public function canEdit($member = null)
-	{
-		return singleton('ElementDecisionTree')->canCreate($member);
-	}
+        return $fields;
+    }
 
-	/**
-	* Can only delete an answer that doesn't have a dependant question
-	*/
-	public function canDelete($member = null)
-	{
-		$canDelete = singleton('ElementDecisionTree')->canDelete($member);
-		return ($canDelete && !$this->ResultingStep()->exists());
-	}
+    public function canCreate($member = null, $context = [])
+    {
+        return singleton(ElementDecisionTree::class)->canCreate($member);
+    }
 
-	/**
-	* Used as breadcrumbs on the parent Step
-	*
-	* @return String
-	*/
-	public function TitleWithQuestion()
-	{
-		$title = $this->Title;
-		if ($this->Question()->exists()) {
-			$title = sprintf('%s > %s', $this->Question()->Title, $title);
-		}
-		return $title;
-	}
+    public function canView($member = null)
+    {
+        return singleton(ElementDecisionTree::class)->canCreate($member);
+    }
 
-	/**
-	* Create a link that allowd to edit this object in the CMS
-	* To do this, it first finds its parent question
-	* then rewind the tree up to the element
-	* then append its edit url to the edit url of its parent question
-	*
-	* @return String
-	*/
-	public function CMSEditLink() {
-		if ($this->Question()->exists()) {
-			$origin = $this->Question()->getTreeOrigin();
-			if ($origin) {
-				$root = $origin->ParentElement();
-				if ($root) {
-					$url = Controller::join_links($root->CMSEditFirstStepLink(), $this->Question()->getRecursiveEditPath(), $this->getRecursiveEditPathForSelf());
-					return $url;
-				}
-			}
-		}
-	}
+    public function canEdit($member = null)
+    {
+        return singleton(ElementDecisionTree::class)->canCreate($member);
+    }
 
-	/**
-	* Construct the link tp create a new ResultingStep for this answer
-	*
-	* @return String
-	*/
-	public function CMSAddStepLink()
-	{
-		$link = Controller::join_links($this->CMSEditLink(), '/itemEditForm/field/ResultingStep/item/new');
-		return $link;
-	}
+    /**
+     * Can only delete an answer that doesn't have a dependant question
+     */
+    public function canDelete($member = null)
+    {
+        $canDelete = singleton(ElementDecisionTree::class)->canDelete($member);
 
-	/**
-	* Recursively construct the link to edit this object
-	*
-	* @return String
-	*/
-	public function getRecursiveEditPath()
-	{
-		$path = sprintf('/ItemEditForm/field/Answers/item/%s/', $this->ID);
+        return ($canDelete && !$this->ResultingStep()->exists());
+    }
 
-		if ($this->Question()->exists()) {
-			$path .= $this->Question()->getRecursiveEditPath();
-		}
+    /**
+    * Used as breadcrumbs on the parent Step
+    *
+    * @return String
+    */
+    public function TitleWithQuestion()
+    {
+        $title = $this->Title;
+        if ($this->Question()->exists()) {
+            $title = sprintf('%s > %s', $this->Question()->Title, $title);
+        }
+        return $title;
+    }
 
-		return $path;
-	}
+    /**
+    * Create a link that allowd to edit this object in the CMS
+    * To do this, it first finds its parent question
+    * then rewind the tree up to the element
+    * then append its edit url to the edit url of its parent question
+    *
+    * @return String
+    */
+    public function CMSEditLink() {
+        if ($this->Question()->exists()) {
+            $origin = $this->Question()->getTreeOrigin();
 
-	/**
-	* Return only the url segment to edit this object
-	*
-	* @return String
-	*/
-	public function getRecursiveEditPathForSelf()
-	{
-		return sprintf('/ItemEditForm/field/Answers/item/%s/', $this->ID);
-	}
+            if ($origin) {
+                $root = $origin->ParentElement();
+
+                if ($root) {
+                    $url = Controller::join_links(
+                        $root->CMSEditFirstStepLink(),
+                        $this->Question()->getRecursiveEditPath(),
+                        $this->getRecursiveEditPathForSelf()
+                    );
+
+                    return $url;
+                }
+            }
+        }
+    }
+
+    /**
+    * Construct the link tp create a new ResultingStep for this answer
+    *
+    * @return String
+    */
+    public function CMSAddStepLink()
+    {
+        $link = Controller::join_links($this->CMSEditLink(), '/itemEditForm/field/ResultingStep/item/new');
+        return $link;
+    }
+
+    /**
+    * Recursively construct the link to edit this object
+    *
+    * @return String
+    */
+    public function getRecursiveEditPath()
+    {
+        $path = sprintf('/ItemEditForm/field/Answers/item/%s/', $this->ID);
+
+        if ($this->Question()->exists()) {
+            $path .= $this->Question()->getRecursiveEditPath();
+        }
+
+        return $path;
+    }
+
+    /**
+    * Return only the url segment to edit this object
+    *
+    * @return String
+    */
+    public function getRecursiveEditPathForSelf()
+    {
+        return sprintf('/ItemEditForm/field/Answers/item/%s/', $this->ID);
+    }
 }

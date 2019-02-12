@@ -1,12 +1,12 @@
 <?php
 
-namespace DNADesign\SilverStripeElementalDecisionTree;
+namespace DNADesign\SilverStripeElementalDecisionTree\Forms;
 
 use SilverStripe\Forms\CompositeField;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FormField;
-use SilverShop\HasOneButtonField;
-
+use SilverShop\HasOneField\HasOneButtonField;
+use SilverShop\HasOneField\GridFieldHasOneEditButton;
 /**
 * This a wrapper for a slightly enhanced user experience when using the
 * HasOneButtonField class.
@@ -22,18 +22,19 @@ use SilverShop\HasOneButtonField;
 * @param Object | The object calling this field, required by HasOneButtonField
 */
 
-class HasOneSelectOrCreateField extends CompositeField {
+class HasOneSelectOrCreateField extends CompositeField
+{
 
     protected $dropdown;
 
     protected $gridfield;
 
-    public function __construct($name, $title, $options, $current = null, $parent)
+    public function __construct($record, $name, $title, $options, $current = null, $parent)
     {
         $this->name = $name;
         $this->title = $title;
 
-        $gridfield = HasOneButtonField::create($name, $name, $parent);
+        $gridfield = HasOneButtonField::create($record, $name, $name, $parent);
         $this->gridfield = $gridfield;
 
         $dropdown = DropdownField::create($this->getRelationName(), $title, $options, $current);
@@ -43,7 +44,7 @@ class HasOneSelectOrCreateField extends CompositeField {
         $singleton = singleton($gridfield->getModelClass());
         $label = FormField::name_to_label($singleton->i18n_singular_name());
         $gridfieldConfig = $gridfield->getConfig();
-        $button = $gridfieldConfig->getComponentByType('GridFieldHasOneEditButton');
+        $button = $gridfieldConfig->getComponentByType(GridFieldHasOneEditButton::class);
 
         if ($current && $current->exists()) {
             $name = ($current->Title) ? $current->Title : $current->Name;
