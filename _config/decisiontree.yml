@@ -1,6 +1,6 @@
 ---
 Name: decisiontree
 ---
-LeftAndMain:
+SilverStripe\Admin\LeftAndMain:
   extra_requirements_css:
-    - silverstripe-elemental-decisiontree/css/decisiontree.leftandmain.css
+    - dnadesign/silverstripe-elemental-decisiontree:css/decisiontree.leftandmain.css

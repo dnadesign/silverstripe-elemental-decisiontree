@@ -1,5 +1,7 @@
 <?php
 
+namespace DNADesign\SilverStripeElementalDecisionTree\Models;
+
 class DecisionTreeAnswer extends DataObject
 {
 	private static $db = [
@@ -54,7 +56,7 @@ class DecisionTreeAnswer extends DataObject
 	/**
 	* Permissions
 	*/
-	public function canCreate($member = null) 
+	public function canCreate($member = null)
 	{
 		return singleton('ElementDecisionTree')->canCreate($member);
 	}
@@ -64,7 +66,7 @@ class DecisionTreeAnswer extends DataObject
 		return singleton('ElementDecisionTree')->canCreate($member);
 	}
 
-	public function canEdit($member = null) 
+	public function canEdit($member = null)
 	{
 		return singleton('ElementDecisionTree')->canCreate($member);
 	}
