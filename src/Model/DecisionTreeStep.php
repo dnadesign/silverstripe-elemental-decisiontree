@@ -4,6 +4,7 @@ namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Forms\CheckboxField;
+use SilverStripe\ORM\ArrayList;
 use SilverStripe\Forms\GridField\GridField;
 
 class DecisionTreeStep extends DataObject
@@ -288,7 +289,13 @@ class DecisionTreeStep extends DataObject
             return !$item->belongsToAnswer();
         });
 
-        return DecisionTreeStep::get()->filter('ID', $intial->column('ID'))->exclude('Type', 'Result');
+        if (!$initial->count()) {
+            return new ArrayList();
+        }
+
+        return DecisionTreeStep::get()->filter([
+            'ID' => $intial->column('ID')
+        ])->exclude('Type', 'Result');
     }
 
     /**
