@@ -266,13 +266,17 @@ class DecisionTreeStep extends DataObject
     /**
     * Return a DataList of DecisionTreeStep that do not belong to a Tree
     *
-    * @return DataList
+    * @return SS_List
     */
     public static function get_orphans()
     {
         $orphans = DecisionTreeStep::get()->filterByCallback(function($item) {
             return !$item->belongsToTree();
         });
+
+        if (!$orphans->count()) {
+            return new ArrayList();
+        }
 
         return DecisionTreeStep::get()->filter('ID', $orphans->column('ID'));
     }
@@ -281,7 +285,7 @@ class DecisionTreeStep extends DataObject
     * Return a DataList of all DecisionTreeStep that do not belong to an answer
     * ie. are the first child of a element
     *
-    * @return DataList
+    * @return SS_List
     */
     public static function get_initial_steps()
     {
