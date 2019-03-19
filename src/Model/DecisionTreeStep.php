@@ -285,7 +285,7 @@ class DecisionTreeStep extends DataObject
     */
     public static function get_initial_steps()
     {
-        $intial = DecisionTreeStep::get()->filterByCallback(function($item) {
+        $initial = DecisionTreeStep::get()->filterByCallback(function($item) {
             return !$item->belongsToAnswer();
         });
 
@@ -294,7 +294,7 @@ class DecisionTreeStep extends DataObject
         }
 
         return DecisionTreeStep::get()->filter([
-            'ID' => $intial->column('ID')
+            'ID' => $initial->column('ID')
         ])->exclude('Type', 'Result');
     }
 
