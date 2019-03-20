@@ -26,6 +26,13 @@ class ElementDecisionTree extends BaseElement
 
     private static $table_name = 'ElementDecisionTree';
 
+    private static $inline_editable = false;
+
+    public function getType()
+    {
+        return 'Decision Tree';
+    }
+
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
