@@ -5,6 +5,8 @@ namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\Control\Controller;
 use SilverStripe\Forms\GridField\GridField;
 
 class DecisionTreeStep extends DataObject
@@ -144,10 +146,7 @@ class DecisionTreeStep extends DataObject
             }
         }
 
-        $html = HTMLText::create('Answers');
-        $html->setValue($output);
-
-        return $html;
+        return DBField::create_field('HTMLText', $output);
     }
 
     /**
