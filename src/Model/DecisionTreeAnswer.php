@@ -4,6 +4,7 @@ namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Control\Controller;
+use SilverStripe\Forms\LiteralField;
 use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 
 class DecisionTreeAnswer extends DataObject
