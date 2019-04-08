@@ -58,7 +58,11 @@ class DecisionTreeAnswer extends DataObject
 
             $fields->addFieldsToTab('Root.Main', $stepSelector);
         } else {
-            $info = LiteralField::create('info', sprintf('<p class="message info notice">%s</p>', 'Save this answer in order to add a following step.'));
+            $info = LiteralField::create('info', sprintf(
+                '<p class="message info notice">%s</p>', 
+                'Save this answer in order to add a following step.'
+            ));
+            
             $fields->addFieldToTab('Root.Main', $info);
         }
 
@@ -139,7 +143,11 @@ class DecisionTreeAnswer extends DataObject
     */
     public function CMSAddStepLink()
     {
-        $link = Controller::join_links($this->CMSEditLink(), '/itemEditForm/field/ResultingStep/item/new');
+        $link = Controller::join_links(
+            $this->CMSEditLink(), 
+            'itemEditForm/field/ResultingStep/item/new'
+        );
+
         return $link;
     }
 
@@ -150,10 +158,13 @@ class DecisionTreeAnswer extends DataObject
     */
     public function getRecursiveEditPath()
     {
-        $path = sprintf('/ItemEditForm/field/Answers/item/%s/', $this->ID);
+        $path = sprintf('ItemEditForm/field/Answers/item/%s/', $this->ID);
 
         if ($this->Question()->exists()) {
-            $path .= $this->Question()->getRecursiveEditPath();
+            $path = Controller::join_links(
+                $path,
+                $this->Question()->getRecursiveEditPath()
+            );
         }
 
         return $path;
@@ -166,6 +177,6 @@ class DecisionTreeAnswer extends DataObject
     */
     public function getRecursiveEditPathForSelf()
     {
-        return sprintf('/ItemEditForm/field/Answers/item/%s/', $this->ID);
+        return sprintf('ItemEditForm/field/Answers/item/%s/', $this->ID);
     }
 }

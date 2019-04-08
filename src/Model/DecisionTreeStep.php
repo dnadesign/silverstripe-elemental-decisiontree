@@ -24,7 +24,7 @@ class DecisionTreeStep extends DataObject
     ];
 
     private static $has_many = [
-        'Answers' => DecisionTreeAnswer::class
+        'Answers' => DecisionTreeAnswer::class.'.Question'
     ];
 
     private static $owns = [
@@ -121,12 +121,6 @@ class DecisionTreeStep extends DataObject
     public function canDelete($member = null)
     {
         $canDelete = singleton(ElementDecisionTree::class)->canDelete($member);
-
-        foreach($this->Answers() as $answer) {
-            if (!$answer->canDelete()) {
-                $canDelete = false;
-            }
-        }
 
         return $canDelete;
     }

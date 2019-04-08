@@ -4,3 +4,6 @@ Name: decisiontree
 SilverStripe\Admin\LeftAndMain:
   extra_requirements_css:
     - dnadesign/silverstripe-elemental-decisiontree:css/decisiontree.leftandmain.css
+SilverStripe\Control\Controller:
+  extensions:
+    - DNADesign\SilverStripeElementalDecisionTree\Extensions\ElementDecisionTreeController

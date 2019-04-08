@@ -34,7 +34,7 @@ class HasOneSelectOrCreateField extends CompositeField
         $this->name = $name;
         $this->title = $title;
 
-        $gridfield = HasOneButtonField::create($record, $name, $name, $parent);
+        $gridfield = HasOneButtonField::create($record, $name, $name);
         $this->gridfield = $gridfield;
 
         $dropdown = DropdownField::create($this->getRelationName(), $title, $options, $current);

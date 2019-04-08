@@ -1,11 +1,14 @@
 <?php
 
-namespace DNADesign\SilverStripeElementalDecisionTree\Control;
+namespace DNADesign\SilverStripeElementalDecisionTree\Extensions;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\View\ArrayData;
+use SilverStripe\Core\Extension;
+use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep;
+use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer;
 
-class ElementDecisionTreeController extends Controller
+class ElementDecisionTreeController extends Extension
 {
 
     private static $allowed_actions = [
@@ -22,35 +25,42 @@ class ElementDecisionTreeController extends Controller
     */
     public function getNextStepForAnswer()
     {
-        $answerID = $this->getRequest()->postVar('stepanswerid');
+        $answerID = $this->owner->getRequest()->postVar('stepanswerid');
 
         if (!$answerID) {
-            return $this->httpError(404, 'No answer ID found.');
+            return $this->owner->httpError(404, 'No answer ID found.');
         }
 
         $answer = DecisionTreeAnswer::get()->byID($answerID);
 
         if (!$answer || !$answer->exists()) {
-            return $this->httpError(404, $this->renderError('An error has occurred, please reload the page and try again!'));
+            return $this->owner->httpError(
+                404, 
+                $this->renderError('An error has occurred, please reload the page and try again!')
+            );
         }
 
         $nextStep = $answer->ResultingStep();
 
         if (!$nextStep || !$nextStep->exists()) {
-            return $this->httpError(404, $this->renderError('An error has occurred, please reload the page and try again!'));
+            return $this->owner->httpError(
+                404, 
+                $this->renderError('An error has occurred, please reload the page and try again!')
+            );
         }
 
-        $html = $this->customise(new ArrayData([
-            'Step' => $nextStep
-        ]))->renderWith('Includes\DecisionTreeStep');
+        $html = $this->owner->customise(new ArrayData([
+            'Step' => $nextStep,
+            'Controller' => $this->owner
+        ]))->renderWith('DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep');
 
         $pathway = $nextStep->getAnswerPathway();
 
         $nextURL = Controller::join_links(
-            $this->getParentController()->absoluteLink(), '?decisionpathway='.implode(',', $pathway)
+            $this->owner->AbsoluteLink(), '?decisionpathway='.implode(',', $pathway)
         );
 
-        if ($this->getRequest()->isAjax()) {
+        if ($this->owner->getRequest()->isAjax()) {
             $data = [
                 'html' => $html->forTemplate(),
                 'nexturl' => $nextURL
@@ -70,7 +80,7 @@ class ElementDecisionTreeController extends Controller
     */
     public function getInitialPathway()
     {
-        $ids = $this->getParentController()->getRequest()->getVar('decisionpathway');
+        $ids = $this->owner->getRequest()->getVar('decisionpathway');
 
         if ($ids && is_string($ids)) {
             return explode(',', $ids);
@@ -117,20 +127,24 @@ class ElementDecisionTreeController extends Controller
     }
 
     /**
-    * Template returned via ajax in case
-    * of an error occuring
+    * Template returned via ajax in case of an error occuring.
     *
-    * @return String
+    * @param string
+    *
+    * @return string
     */
-    public function renderError($message = '')
+    protected function renderError($message = '')
     {
-        return sprintf('<div class="step step--error">
-            <hr class="partial_green_border">
-            <div class="step-form">
-                <span class="step-title">Sorry!</span>
-                <span class="step-content"><p>%s</p></span>
-            </div>
-        </div>', $message);
+        return sprintf(
+            '<div class="step step--error">
+                <hr class="partial_green_border">
+                <div class="step-form">
+                    <span class="step-title">Sorry!</span>
+                    <span class="step-content"><p>%s</p></span>
+                </div>
+            </div>', 
+            $message
+        );
     }
 
 }
