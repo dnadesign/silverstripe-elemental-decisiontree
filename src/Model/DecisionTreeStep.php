@@ -44,8 +44,7 @@ class DecisionTreeStep extends DataObject
 
     private static $summary_fields = [
         'ID' => 'ID',
-        'Title' => 'Title',
-        'getAnswerTreeForGrid' => 'Answers'
+        'Title' => 'Title'
     ];
 
     private static $default_result_title = 'Our recommendation';
