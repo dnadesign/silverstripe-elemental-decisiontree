@@ -9,6 +9,7 @@ use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\Control\Controller;
 use SilverStripe\Forms\ReadOnlyField;
 use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 use UncleCheese\DisplayLogic\Forms\Wrapper as DisplayLogicWrapper;
@@ -58,10 +59,12 @@ class DecisionTreeStep extends DataObject
 
         $fields->removeByName('Answers');
 
+        $fields->replaceField('Type', $type = OptionsetField::create('Type', 'Type' ,$this->dbObject('Type')->enumValues()));
+
         // Allow to hide the title only on Result
-        $hideTitle = CheckboxField::create('HideTitle', 'HideTitle');
+        $hideTitle = CheckboxField::create('HideTitle', 'Hide title');
         $hideTitle->displayIf('Type')->isEqualTo('Result')->end();
-        $fields->insertAfter($hideTitle, 'Title');
+        $fields->insertAfter($hideTitle, 'Type');
 
         if ($this->IsInDB()) {
             // Display Parent Answer

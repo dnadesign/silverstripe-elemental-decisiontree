@@ -16,6 +16,8 @@ class ElementDecisionTree extends BaseElement
 
     private static $enable_title_in_template = true;
 
+    private static $icon = 'font-icon-flow-tree';
+
     private static $db = [
         'Introduction' => 'HTMLText'
     ];
