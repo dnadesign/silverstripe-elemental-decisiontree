@@ -5,7 +5,7 @@
 		<fieldset>
 			<legend class="step-legend <% if $Content %>step-legend--withcontent<% end_if %>">
 				<span class="step-title">
-					<span class="step-number">$PositionInPathway.</span>
+					<span class="step-number">{$PositionInPathway}.</span>
 					<span class="step-title-inner">$Title</span>
 				</span>
 				<% if $Content %><span class="step-content">$Content</span><% end_if %>
@@ -23,6 +23,7 @@
 		</fieldset>
 		<% end_with %>
 	</form>
+
 	<div class="nextstep" aria-live="polite">
 		<% if $Controller.getNextStepFromSelectedAnswer($Step.ID) %>
 			<% include DecisionTreeStep Step=$Controller.getNextStepFromSelectedAnswer($Step.ID), Controller=$Controller %>

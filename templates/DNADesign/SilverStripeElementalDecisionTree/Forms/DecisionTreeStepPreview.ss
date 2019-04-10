@@ -16,7 +16,7 @@
 			<% loop $Answers %>
 				<td><div class="answer answerfor-{$Question.ID}" data-answerfor="q"><a href="$CMSEditLink">$Title</a></div>
 					<% if $ResultingStep %>
-						<% include DecisionTreeStepPreview Step=$ResultingStep %>
+						<% include DNADesign\SilverStripeElementalDecisionTree\Forms\DecisionTreeStepPreview Step=$ResultingStep %>
 					<% else %>
 						<table class="decisiontree-table">
 							<tbody>
