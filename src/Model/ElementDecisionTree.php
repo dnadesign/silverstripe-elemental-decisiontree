@@ -69,7 +69,7 @@ class ElementDecisionTree extends BaseElement
         return Controller::join_links(
             singleton(CMSPageEditController::class)->Link('EditForm'),
             $page->ID,
-            'field/ElementArea/item/',
+            'field/ElementalArea/item/',
             $this->ID,
             'ItemEditForm/field/FirstStep/item',
             $this->FirstStep()->ID

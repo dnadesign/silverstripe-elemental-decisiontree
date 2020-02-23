@@ -49,8 +49,10 @@ class DecisionTreeAnswer extends DataObject
             if ($this->ResultingStep()->exists()) {
                 array_push($availableStepsID, $this->ResultingStepID);
             }
-
-            $steps = DecisionTreeStep::get()->filter('ID', $availableStepsID)->map();
+            $steps = [];
+            if ($availableStepsID) {
+                $steps = DecisionTreeStep::get()->filter('ID', $availableStepsID)->map();
+            }
 
             $stepSelector = HasOneSelectOrCreateField::create(
                 $this, 'ResultingStep', 'If selected, go to', $steps, $this->ResultingStep(), $this
@@ -59,10 +61,10 @@ class DecisionTreeAnswer extends DataObject
             $fields->addFieldsToTab('Root.Main', $stepSelector);
         } else {
             $info = LiteralField::create('info', sprintf(
-                '<p class="message info notice">%s</p>', 
+                '<p class="message info notice">%s</p>',
                 'Save this answer in order to add a following step.'
             ));
-            
+
             $fields->addFieldToTab('Root.Main', $info);
         }
 
@@ -144,7 +146,7 @@ class DecisionTreeAnswer extends DataObject
     public function CMSAddStepLink()
     {
         $link = Controller::join_links(
-            $this->CMSEditLink(), 
+            $this->CMSEditLink(),
             'itemEditForm/field/ResultingStep/item/new'
         );
 

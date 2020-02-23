@@ -11,7 +11,7 @@ This module provides an easy way to build such tree and to add it to a page as a
 
 ## Requirements
 
-* SilverStripe 3.1
+* SilverStripe 4.x
 * (dnadesign/silvertsripe-elemental)[https://github.com/dnadesign/silverstripe-elemental]
 
 ## Screenshots
