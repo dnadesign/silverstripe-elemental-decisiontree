@@ -9,7 +9,7 @@
 		"email": "alexandre.saelens@dna.co.nz"
 	}],
 	"require": {
-		"dnadesign/silverstripe-elemental": "^1.x-dev",
+		"dnadesign/silverstripe-elemental": "^1.9",
 		"silvershop/silverstripe-hasonefield": "1.x-dev"
 	}
 }
