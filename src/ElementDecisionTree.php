@@ -24,7 +24,9 @@ class ElementDecisionTree extends BaseElement
 		$introduction->setRows(4);
 
 		$fields->removeByName('FirstStepID');
-		$stepSelector = HasOneSelectOrCreateField::create('FirstStep', 'First Step', DecisionTreeStep::get_initial_steps()->map(), $this->FirstStep(), $this);
+		
+		$current = $this->isInDB() & $this->FirstStep()->isInDB() ? $this->FirstStep() : null;
+		$stepSelector = HasOneSelectOrCreateField::create('FirstStep', 'First Step', DecisionTreeStep::get_initial_steps()->map(), $current, $this);
 
 		$fields->addFieldToTab('Root.Main', $stepSelector);
 
