@@ -10,6 +10,6 @@
 	}],
 	"require": {
 		"dnadesign/silverstripe-elemental": "^1.9",
-		"silvershop/silverstripe-hasonefield": "1.x-dev"
+		"silvershop/silverstripe-hasonefield": "^1.0.0"
 	}
 }
