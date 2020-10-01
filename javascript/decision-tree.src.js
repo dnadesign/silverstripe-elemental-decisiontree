@@ -52,15 +52,16 @@
             if (firststep) {
                 firststep.find('.nextstep').fadeOut(function() {
                     $(this).html('').show();
-                    radio.removeAttr('checked');
+                    radio.prop('checked', false);
 
                     if ($(tree).length > 0) {
                         $('html, body').animate({
                             scrollTop: $(tree).offset().top - 150
                         }, 500);
                     }
-                    
-                    window.history.pushState(null, null, button.data('target'));
+
+                    const url = location.protocol + '//' + location.host + location.pathname;
+                    window.history.pushState(null, null, url);
                 });
             }
         });
