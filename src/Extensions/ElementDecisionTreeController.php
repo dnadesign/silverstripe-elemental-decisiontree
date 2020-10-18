@@ -16,13 +16,13 @@ class ElementDecisionTreeController extends Extension
     ];
 
     /**
-    * Return the HTMl for the next step to be displayed
-    * as well as the updated URL which includes the ids of the answers
-    * leading to this next step to be returned
-    *
-    * @param stepanswerid (POST)
-    * @return json
-    */
+     * Return the HTMl for the next step to be displayed
+     * as well as the updated URL which includes the ids of the answers
+     * leading to this next step to be returned
+     *
+     * @param string $stepanswerid (POST)
+     * @return string json
+     */
     public function getNextStepForAnswer()
     {
         $answerID = $this->owner->getRequest()->postVar('stepanswerid');
@@ -35,7 +35,7 @@ class ElementDecisionTreeController extends Extension
 
         if (!$answer || !$answer->exists()) {
             return $this->owner->httpError(
-                404, 
+                404,
                 $this->renderError('An error has occurred, please reload the page and try again!')
             );
         }
@@ -44,7 +44,7 @@ class ElementDecisionTreeController extends Extension
 
         if (!$nextStep || !$nextStep->exists()) {
             return $this->owner->httpError(
-                404, 
+                404,
                 $this->renderError('An error has occurred, please reload the page and try again!')
             );
         }
@@ -73,11 +73,11 @@ class ElementDecisionTreeController extends Extension
     }
 
     /**
-    * Returns an array of DecisionStepID from the URL param
-    * in order to display the same question when we reload the page
-    *
-    * @return Array
-    */
+     * Returns an array of DecisionStepID from the URL param
+     * in order to display the same question when we reload the page
+     *
+     * @return array|null
+     */
     public function getInitialPathway()
     {
         $ids = $this->owner->getRequest()->getVar('decisionpathway');
@@ -90,11 +90,12 @@ class ElementDecisionTreeController extends Extension
     }
 
     /**
-    * Check if an answer should be selected by default
-    * ie. The question depending on it is displayed
-    *
-    * @return Boolean
-    */
+     * Check if an answer should be selected by default
+     * ie. The question depending on it is displayed
+     *
+     * @param int $answerID
+     * @return boolean
+     */
     public function getIsAnswerSelected($answerID)
     {
         if ($pathway = $this->getInitialPathway()) {
@@ -105,11 +106,12 @@ class ElementDecisionTreeController extends Extension
     }
 
     /**
-    * Gets the next step to be displayed in regards to the selected answer.
-    * Used by template to display all the relevant steps from the URL
-    *
-    * @return DecisionTreeStep
-    */
+     * Gets the next step to be displayed in regards to the selected answer.
+     * Used by template to display all the relevant steps from the URL
+     *
+     * @param int $stepID
+     * @return DecisionTreeStep|null
+     */
     public function getNextStepFromSelectedAnswer($stepID)
     {
         $step = DecisionTreeStep::get()->byID($stepID);
@@ -127,12 +129,11 @@ class ElementDecisionTreeController extends Extension
     }
 
     /**
-    * Template returned via ajax in case of an error occuring.
-    *
-    * @param string
-    *
-    * @return string
-    */
+     * Template returned via ajax in case of an error occuring.
+     *
+     * @param string $message
+     * @return string
+     */
     protected function renderError($message = '')
     {
         return sprintf(
@@ -142,7 +143,7 @@ class ElementDecisionTreeController extends Extension
                     <span class="step-title">Sorry!</span>
                     <span class="step-content"><p>%s</p></span>
                 </div>
-            </div>', 
+            </div>',
             $message
         );
     }
