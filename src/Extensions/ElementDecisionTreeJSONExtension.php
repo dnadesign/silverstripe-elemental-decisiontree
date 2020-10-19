@@ -33,26 +33,26 @@ class ElementDecisionTreeJSONExtension extends DataExtension
         // start from the top
         $first = $this->owner->FirstStep();
 
-        if (!$first) {
+        if (!$first->exists()) {
             return $data;
         }
 
         // now start our descent through the flow
-        $this->collectStepData($first, &$data);
+        $this->collectStepData($first, $data);
 
         return $data;
     }
 
-    private function collectStepData($step, $data)
+    private function collectStepData($step, &$data)
     {
         // add step id
         $data['steps'][$step->ID] = $step->toJSONData();
 
         // collect answer ids
-        $this->collectAnswersData($step->Answers(), &$data);
+        $this->collectAnswersData($step->Answers(), $data);
     }
 
-    private function collectAnswersData($answers, $data)
+    private function collectAnswersData($answers, &$data)
     {
         // loop through answers
         foreach ($answers as $answer) {
@@ -64,7 +64,7 @@ class ElementDecisionTreeJSONExtension extends DataExtension
 
             // go to collect step data
             if ($step->exists()) {
-                $this->collectStepData($step, &$data);
+                $this->collectStepData($step, $data);
             }
         }
     }

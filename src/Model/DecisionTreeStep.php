@@ -404,7 +404,7 @@ class DecisionTreeStep extends DataObject
             'title' => $this->Title,
             'isQuestion' => $this->Type === 'Question',
             'content' => ShortcodeParser::get('default')->parse($this->Content),
-            'hideTitle' => $this->HideTitle,
+            'hideTitle' => (bool) $this->HideTitle,
             'answers' => $this->Answers()->column('ID'),
             'isFirst' => $this->belongsToElement(),
         ];
