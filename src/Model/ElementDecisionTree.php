@@ -7,6 +7,7 @@ use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 use DNADesign\SilverStripeElementalDecisionTree\Forms\DecisionTreeStepPreview;
 use SilverStripe\Control\Controller;
 use SilverStripe\CMS\Controllers\CMSPageEditController;
+use SilverStripe\View\Parsers\ShortcodeParser;
 
 class ElementDecisionTree extends BaseElement
 {
