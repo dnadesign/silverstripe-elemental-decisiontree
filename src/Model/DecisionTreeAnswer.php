@@ -181,4 +181,21 @@ class DecisionTreeAnswer extends DataObject
     {
         return sprintf('ItemEditForm/field/Answers/item/%s/', $this->ID);
     }
+
+    /**
+     * Helper to generate associated data so it can easily be converted to JSON.
+     *
+     * @return array
+     */
+    public function toJSONData()
+    {
+        $data = [
+            'title' => $this->Title,
+            'goTo' => $this->ResultingStepID,
+        ];
+
+        $this->extend('updateJSONData', $data);
+
+        return $data;
+    }
 }

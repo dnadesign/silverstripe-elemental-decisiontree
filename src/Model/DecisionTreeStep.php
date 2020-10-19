@@ -2,18 +2,19 @@
 
 namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 
-use SilverStripe\ORM\DataObject;
-use SilverStripe\Forms\CheckboxField;
-use SilverStripe\ORM\ArrayList;
-use SilverStripe\ORM\FieldType\DBField;
+use DNADesign\SilverStripeElementalDecisionTree\Forms\DecisionTreeStepPreview;
 use SilverStripe\Control\Controller;
-use SilverStripe\Forms\ReadOnlyField;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\FieldType\DBField;
+use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\GridField\GridField;
-use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\ReadOnlyField;
+use SilverStripe\View\Parsers\ShortcodeParser;
 use Symbiote\GridFieldExtensions\GridFieldOrderableRows;
 use UncleCheese\DisplayLogic\Forms\Wrapper as DisplayLogicWrapper;
-use DNADesign\SilverStripeElementalDecisionTree\Forms\DecisionTreeStepPreview;
 
 class DecisionTreeStep extends DataObject
 {
@@ -390,5 +391,26 @@ class DecisionTreeStep extends DataObject
         }
 
         return $url;
+    }
+
+    /**
+     * Helper to generate associated data so it can easily be converted to JSON.
+     *
+     * @return array
+     */
+    public function toJSONData()
+    {
+        $data = [
+            'title' => $this->Title,
+            'isQuestion' => $this->Type === 'Question',
+            'content' => ShortcodeParser::get('default')->parse($this->Content),
+            'hideTitle' => $this->HideTitle,
+            'answers' => $this->Answers()->column('ID'),
+            'isFirst' => $this->belongsToElement(),
+        ];
+
+        $this->extend('updateJSONData', $data);
+
+        return $data;
     }
 }
