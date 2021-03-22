@@ -60,7 +60,8 @@
                         }, 500);
                     }
                     
-                    window.history.pushState(null, null, button.data('target'));
+                    const url = location.protocol + '//' + location.host + location.pathname;
+                    window.history.pushState(null, null, url);
                 });
             }
         });
