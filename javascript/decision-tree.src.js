@@ -52,7 +52,7 @@
             if (firststep) {
                 firststep.find('.nextstep').fadeOut(function() {
                     $(this).html('').show();
-                    radio.removeAttr('checked');
+                    radio.props('checked', false);
 
                     if ($(tree).length > 0) {
                         $('html, body').animate({
