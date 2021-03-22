@@ -1,0 +1,29 @@
+language: php
+
+dist: trusty
+
+env:
+  global:
+    - COMPOSER_ROOT_VERSION=4.0.x-dev
+
+matrix:
+  include:
+    - php: 7.3
+      env: DB=MYSQL PHPUNIT_TEST=1
+    - php: 7.4
+      env: DB=MYSQL PHPUNIT_TEST=1
+
+before_script:
+  # Init PHP
+  - phpenv rehash
+  - phpenv config-rm xdebug.ini
+
+  # Install composer dependencies
+  - composer validate
+  - composer require --no-update silverstripe/recipe-core:4.5.x-dev
+  - composer install --prefer-dist --no-interaction --no-progress --no-suggest --optimize-autoloader --verbose --profile
+
+script:
+  - if [[ $PHPUNIT_TEST ]]; then vendor/bin/phpunit; fi
+  - if [[ $PHPUNIT_COVERAGE_TEST ]]; then phpdbg -qrr vendor/bin/phpunit --coverage-clover=coverage.xml; fi
+  - if [[ $PHPCS_TEST ]]; then vendor/bin/phpcs --standard=vendor/silverstripe/framework/phpcs.xml.dist src/ tests/; fi
