@@ -5,4 +5,3 @@ SilverStripe\ORM\DatabaseAdmin:
   classname_value_remapping:
     DecisionTreeAnswer: 'DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer'
     DecisionTreeStep: 'DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep'
-    DecisionTreeAnswer: 'DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer'
