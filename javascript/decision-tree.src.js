@@ -52,14 +52,14 @@
             if (firststep) {
                 firststep.find('.nextstep').fadeOut(function() {
                     $(this).html('').show();
-                    radio.props('checked', false);
+                    radio.prop('checked', false);
 
                     if ($(tree).length > 0) {
                         $('html, body').animate({
                             scrollTop: $(tree).offset().top - 150
                         }, 500);
                     }
-                    
+
                     const url = location.protocol + '//' + location.host + location.pathname;
                     window.history.pushState(null, null, url);
                 });
