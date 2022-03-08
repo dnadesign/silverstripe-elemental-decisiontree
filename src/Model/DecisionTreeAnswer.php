@@ -2,6 +2,7 @@
 
 namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 
+use SilverStripe\ORM\ValidationException;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Control\Controller;
 use SilverStripe\Forms\LiteralField;
@@ -180,5 +181,32 @@ class DecisionTreeAnswer extends DataObject
     public function getRecursiveEditPathForSelf()
     {
         return sprintf('ItemEditForm/field/Answers/item/%s/', $this->ID);
+    }
+
+    /**
+     * Hook before saving the data object.
+     *
+     * @throws \SilverStripe\ORM\ValidationException
+     */
+    protected function onBeforeWrite()
+    {
+        parent::onBeforeWrite();
+
+        $this->validateSelectedResultingStep();
+    }
+
+    /**
+     * Validate the step ID selected by CMS user for resulting step and throw exception if invalid.
+     *
+     * @throws \SilverStripe\ORM\ValidationException
+     */
+    protected function validateSelectedResultingStep()
+    {
+        if ($this->ResultingStepID) {
+            $step = DecisionTreeStep::get()->filter('ID', $this->ResultingStepID)->first();
+            if ($step instanceof DecisionTreeStep && $step->belongsToElement()) {
+                throw new ValidationException('You can\'t select the first step in the tree as a resulting step.');
+            }
+        }
     }
 }
