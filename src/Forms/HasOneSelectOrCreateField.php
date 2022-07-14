@@ -29,7 +29,7 @@ class HasOneSelectOrCreateField extends CompositeField
 
     protected $gridfield;
 
-    public function __construct($record, $name, $title, $options, $current = null, $parent)
+    public function __construct($record, $name, $title, $options, $current, $parent)
     {
         $this->name = $name;
         $this->title = $title;
