@@ -7,6 +7,7 @@ use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 use DNADesign\SilverStripeElementalDecisionTree\Forms\DecisionTreeStepPreview;
 use SilverStripe\Control\Controller;
 use SilverStripe\CMS\Controllers\CMSPageEditController;
+use SilverStripe\Forms\LiteralField;
 
 class ElementDecisionTree extends BaseElement
 {
@@ -38,18 +39,27 @@ class ElementDecisionTree extends BaseElement
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
+        $fields->removeByName('FirstStepID');
 
         $introduction = $fields->dataFieldByName('Introduction');
         $introduction->setRows(4);
 
-        $fields->removeByName('FirstStepID');
-        $stepSelector = HasOneSelectOrCreateField::create(
-            $this, 'FirstStep', 'First Step', DecisionTreeStep::get_initial_steps()->map(), $this->FirstStep(), $this
-        );
+        if ($this->IsInDB()) {
+            $stepSelector = HasOneSelectOrCreateField::create(
+                $this, 'FirstStep', 'First Step', DecisionTreeStep::get_initial_steps()->map(), $this->FirstStep(), $this
+            );
 
-        $fields->addFieldToTab('Root.Main', $stepSelector);
+            $fields->addFieldToTab('Root.Main', $stepSelector);
 
-        $fields->addFieldToTab('Root.Tree', DecisionTreeStepPreview::create('Tree', $this->FirstStep()));
+            $fields->addFieldToTab('Root.Tree', DecisionTreeStepPreview::create('Tree', $this->FirstStep()));
+        } else {
+            $info = LiteralField::create('info', sprintf(
+                '<p class="message info notice">%s</p>',
+                'Save this decision tree in order to add the first step.'
+            ));
+
+            $fields->addFieldToTab('Root.Main', $info);
+        }
 
         return $fields;
     }
