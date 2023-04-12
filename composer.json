@@ -17,8 +17,14 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "require": {
-    "dnadesign/silverstripe-elemental": ">=3",
+    "dnadesign/silverstripe-elemental": "^5",
     "silvershop/silverstripe-hasonefield": "^3",
-    "unclecheese/display-logic": "^2.0"
+    "unclecheese/display-logic": "^3"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "silverstripe/vendor-plugin": true
+    }
   }
 }

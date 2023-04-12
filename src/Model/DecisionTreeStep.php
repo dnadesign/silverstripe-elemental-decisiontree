@@ -64,7 +64,7 @@ class DecisionTreeStep extends DataObject
         // Allow to hide the title only on Result
         $hideTitle = CheckboxField::create('HideTitle', 'Hide title');
         $hideTitle->displayIf('Type')->isEqualTo('Result')->end();
-        $fields->insertAfter($hideTitle, 'Type');
+        $fields->insertAfter('Type', $hideTitle);
 
         if ($this->IsInDB()) {
             // Display Parent Answer

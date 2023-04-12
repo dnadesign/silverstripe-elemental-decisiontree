@@ -40,7 +40,7 @@ class DecisionTreeAnswer extends DataObject
         // Update Parent Question
         $question = $fields->dataFieldByName('QuestionID');
         $question->setTitle('Answer for');
-        $fields->insertBefore($question, 'Title');
+        $fields->insertBefore('Title', $question);
 
         if ($this->IsInDB()) {
             // Set up Step Selector
