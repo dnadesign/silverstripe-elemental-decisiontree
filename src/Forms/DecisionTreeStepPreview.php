@@ -2,6 +2,7 @@
 
 namespace DNADesign\SilverStripeElementalDecisionTree\Forms;
 
+use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep;
 use SilverStripe\Forms\FormField;
 
 /**
@@ -9,23 +10,22 @@ use SilverStripe\Forms\FormField;
  * ElementDecisionTree or DecisionTreeStes. It provides a visual way of
  * navigating the tree as well as links to edit/add steps.
  */
-
 class DecisionTreeStepPreview extends FormField
 {
-    protected $step = null;
+    protected ?DecisionTreeStep $step = null;
 
-    public function __construct($name, $step = null)
+    public function __construct($name, ?DecisionTreeStep $step = null)
     {
         $this->step = $step;
         parent::__construct($name);
     }
 
-    public function getStep()
+    public function getStep(): ?DecisionTreeStep
     {
         return $this->step;
     }
 
-    public function setStep($step)
+    public function setStep(?DecisionTreeStep $step): static
     {
         $this->step = $step;
 
