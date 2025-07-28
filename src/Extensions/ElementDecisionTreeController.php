@@ -4,6 +4,7 @@ namespace DNADesign\SilverStripeElementalDecisionTree\Extensions;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\View\ArrayData;
+use SilverStripe\View\Requirements;
 use SilverStripe\Core\Extension;
 use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep;
 use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer;
@@ -14,6 +15,11 @@ class ElementDecisionTreeController extends Extension
     private static $allowed_actions = [
         'getNextStepForAnswer'
     ];
+
+    public function onAfterInit()
+    {
+        Requirements::javascript('dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js');
+    }
 
     /**
     * Return the HTMl for the next step to be displayed
