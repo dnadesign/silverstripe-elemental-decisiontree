@@ -2,32 +2,32 @@
 
 namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 
-use SilverStripe\ORM\DataObject;
+use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 use SilverStripe\Control\Controller;
 use SilverStripe\Forms\LiteralField;
-use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
+use SilverStripe\ORM\DataObject;
 
 class DecisionTreeAnswer extends DataObject
 {
-    private static $db = [
+    private static array $db = [
         'Title' => 'Varchar(255)',
-        'Sort' => 'Int'
+        'Sort' => 'Int',
     ];
 
-    private static $has_one = [
+    private static array $has_one = [
         'Question' => DecisionTreeStep::class,
-        'ResultingStep' => DecisionTreeStep::class
+        'ResultingStep' => DecisionTreeStep::class,
     ];
 
-    private static $summary_fields = [
+    private static array $summary_fields = [
         'ID' => 'ID',
         'Title' => 'Title',
-        'ResultingStep.Title' => 'Resulting Step'
+        'ResultingStep.Title' => 'Resulting Step',
     ];
 
-    private static $table_name = 'DecisionTreeAnswer';
+    private static string $table_name = 'DecisionTreeAnswer';
 
-    private static $default_sort = 'Sort ASC';
+    private static string $default_sort = 'Sort ASC';
 
     public function getCMSFields()
     {
@@ -55,10 +55,15 @@ class DecisionTreeAnswer extends DataObject
             }
 
             $stepSelector = HasOneSelectOrCreateField::create(
-                $this, 'ResultingStep', 'If selected, go to', $steps, $this->ResultingStep(), $this
+                $this,
+                'ResultingStep',
+                'If selected, go to',
+                $steps,
+                $this->ResultingStep(),
+                $this
             );
 
-            $fields->addFieldsToTab('Root.Main', $stepSelector);
+            $fields->addFieldToTab('Root.Main', $stepSelector);
         } else {
             $info = LiteralField::create('info', sprintf(
                 '<p class="message info notice">%s</p>',
@@ -87,38 +92,38 @@ class DecisionTreeAnswer extends DataObject
     }
 
     /**
-     * Can only delete an answer that doesn't have a dependant question
+     * Can only delete an answer that doesn't have a dependant question.
+     *
+     * @param null|mixed $member
      */
     public function canDelete($member = null)
     {
         $canDelete = singleton(ElementDecisionTree::class)->canDelete($member);
 
-        return ($canDelete && !$this->ResultingStep()->exists());
+        return $canDelete && !$this->ResultingStep()->exists();
     }
 
     /**
-    * Used as breadcrumbs on the parent Step
-    *
-    * @return String
-    */
-    public function TitleWithQuestion()
+     * Used as breadcrumbs on the parent Step.
+     */
+    public function TitleWithQuestion(): ?string
     {
         $title = $this->Title;
         if ($this->Question()->exists()) {
             $title = sprintf('%s > %s', $this->Question()->Title, $title);
         }
+
         return $title;
     }
 
     /**
-    * Create a link that allowd to edit this object in the CMS
-    * To do this, it first finds its parent question
-    * then rewind the tree up to the element
-    * then append its edit url to the edit url of its parent question
-    *
-    * @return String
-    */
-    public function CMSEditLink() {
+     * Create a link that allowd to edit this object in the CMS
+     * To do this, it first finds its parent question
+     * then rewind the tree up to the element
+     * then append its edit url to the edit url of its parent question.
+     */
+    public function getCMSEditLink(): ?string
+    {
         if ($this->Question()->exists()) {
             $origin = $this->Question()->getTreeOrigin();
 
@@ -126,39 +131,33 @@ class DecisionTreeAnswer extends DataObject
                 $root = $origin->ParentElement();
 
                 if ($root) {
-                    $url = Controller::join_links(
+                    return Controller::join_links(
                         $root->CMSEditFirstStepLink(),
                         $this->Question()->getRecursiveEditPath(),
                         $this->getRecursiveEditPathForSelf()
                     );
-
-                    return $url;
                 }
             }
         }
+
+        return parent::getCMSEditLink();
     }
 
     /**
-    * Construct the link tp create a new ResultingStep for this answer
-    *
-    * @return String
-    */
-    public function CMSAddStepLink()
+     * Construct the link tp create a new ResultingStep for this answer.
+     */
+    public function CMSAddStepLink(): string
     {
-        $link = Controller::join_links(
-            $this->CMSEditLink(),
+        return Controller::join_links(
+            $this->getCMSEditLink(),
             'itemEditForm/field/ResultingStep/item/new'
         );
-
-        return $link;
     }
 
     /**
-    * Recursively construct the link to edit this object
-    *
-    * @return String
-    */
-    public function getRecursiveEditPath()
+     * Recursively construct the link to edit this object.
+     */
+    public function getRecursiveEditPath(): string
     {
         $path = sprintf('ItemEditForm/field/Answers/item/%s/', $this->ID);
 
@@ -173,11 +172,9 @@ class DecisionTreeAnswer extends DataObject
     }
 
     /**
-    * Return only the url segment to edit this object
-    *
-    * @return String
-    */
-    public function getRecursiveEditPathForSelf()
+     * Return only the url segment to edit this object.
+     */
+    public function getRecursiveEditPathForSelf(): string
     {
         return sprintf('ItemEditForm/field/Answers/item/%s/', $this->ID);
     }
