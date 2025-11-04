@@ -18,7 +18,11 @@ class ElementDecisionTreeController extends Extension
 
     public function onAfterInit(): void
     {
-        Requirements::javascript('dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js');
+        // Include defer in case any other modules load jquery after this extension hook.
+        Requirements::javascript(
+            'dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js',
+            ['defer' => true]
+        );
     }
 
     /**
