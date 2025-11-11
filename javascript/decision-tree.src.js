@@ -47,14 +47,27 @@
             var button = $(this),
                 firststep = button.parents('.step--first'),
                 radio = firststep.find('input[type="radio"]'),
-                tree = firststep.parents('.ElementDecisionTree');
+                tree = firststep.parents('.ElementDecisionTree'),
+                firstLegend = firststep.find('legend.step-legend').first();
 
             if (firststep) {
                 firststep.find('.nextstep').fadeOut(function() {
                     $(this).html('').show();
                     radio.prop('checked', false);
 
-                    if ($(tree).length > 0) {
+                    if (firstLegend.length > 0) {
+                        // Scroll to the first question's legend
+                        $('html, body').animate({
+                            scrollTop: firstLegend.offset().top - 150
+                        }, 500, function() {
+                            // Set focus on the legend for keyboard navigation
+                            // Make it focusable if it isn't already
+                            if (!firstLegend.attr('tabindex')) {
+                                firstLegend.attr('tabindex', '-1');
+                            }
+                            firstLegend.focus();
+                        });
+                    } else if ($(tree).length > 0) {
                         $('html, body').animate({
                             scrollTop: $(tree).offset().top - 150
                         }, 500);
