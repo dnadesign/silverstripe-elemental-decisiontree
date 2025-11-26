@@ -3,33 +3,33 @@
 namespace DNADesign\SilverStripeElementalDecisionTree\Model;
 
 use DNADesign\Elemental\Models\BaseElement;
-use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 use DNADesign\SilverStripeElementalDecisionTree\Forms\DecisionTreeStepPreview;
-use SilverStripe\Control\Controller;
+use DNADesign\SilverStripeElementalDecisionTree\Forms\HasOneSelectOrCreateField;
 use SilverStripe\CMS\Controllers\CMSPageEditController;
+use SilverStripe\Control\Controller;
 use SilverStripe\Forms\LiteralField;
 
 class ElementDecisionTree extends BaseElement
 {
-    private static $title = "Decision Tree";
+    private static string $title = 'Decision Tree';
 
-    private static $description = "Display a decision tree with questions and results";
+    private static string $class_description = 'Display a decision tree with questions and results';
 
-    private static $enable_title_in_template = true;
+    private static bool $enable_title_in_template = true;
 
-    private static $icon = 'font-icon-flow-tree';
+    private static string $icon = 'font-icon-flow-tree';
 
-    private static $db = [
-        'Introduction' => 'HTMLText'
+    private static array $db = [
+        'Introduction' => 'HTMLText',
     ];
 
-    private static $has_one = [
-        'FirstStep' => DecisionTreeStep::class
+    private static array $has_one = [
+        'FirstStep' => DecisionTreeStep::class,
     ];
 
-    private static $table_name = 'ElementDecisionTree';
+    private static string $table_name = 'ElementDecisionTree';
 
-    private static $inline_editable = false;
+    private static bool $inline_editable = false;
 
     public function getType()
     {
@@ -46,7 +46,12 @@ class ElementDecisionTree extends BaseElement
 
         if ($this->IsInDB()) {
             $stepSelector = HasOneSelectOrCreateField::create(
-                $this, 'FirstStep', 'First Step', DecisionTreeStep::get_initial_steps()->map(), $this->FirstStep(), $this
+                $this,
+                'FirstStep',
+                'First Step',
+                DecisionTreeStep::get_initial_steps()->map(),
+                $this->FirstStep(),
+                $this
             );
 
             $fields->addFieldToTab('Root.Main', $stepSelector);
@@ -65,16 +70,16 @@ class ElementDecisionTree extends BaseElement
     }
 
     /**
-    * Builds the Edit Link to the FirstStep of this element
-    *
-    * @return string
-    */
-    public function CMSEditFirstStepLink()
+     * Builds the Edit Link to the FirstStep of this element.
+     */
+    public function CMSEditFirstStepLink(): ?string
     {
         $page = $this->getPage();
         $firstStep = $this->FirstStep();
 
-        if (!$page || !$page->exists() || !$firstStep->exists()) return null;
+        if (!$page || !$page->exists() || !$firstStep->exists()) {
+            return null;
+        }
 
         return Controller::join_links(
             singleton(CMSPageEditController::class)->Link('EditForm'),
