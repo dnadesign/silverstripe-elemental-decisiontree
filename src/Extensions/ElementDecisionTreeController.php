@@ -18,7 +18,10 @@ class ElementDecisionTreeController extends Extension
 
     public function onAfterInit(): void
     {
-        // Include defer in case any other modules load jquery after this extension hook.
+        Requirements::javascript(
+            'dnadesign/silverstripe-elemental-decisiontree:javascript/jquery.min.js'
+        );
+
         Requirements::javascript(
             'dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js',
             ['defer' => true]
@@ -26,11 +29,10 @@ class ElementDecisionTreeController extends Extension
     }
 
     /**
-     * Return the HTMl for the next step to be displayed
+     * Return the HTML for the next step to be displayed
      * as well as the updated URL which includes the ids of the answers
      * leading to this next step to be returned.
-     *
-     * @param stepanswerid (POST)
+     * Expects a POST var 'stepanswerid' containing the ID of the selected answer.
      */
     public function getNextStepForAnswer(): null|bool|string|DBHTMLText
     {
@@ -58,7 +60,7 @@ class ElementDecisionTreeController extends Extension
             );
         }
 
-        $html = $this->owner->customise(new ArrayData([
+        $html = $this->owner->customise(ArrayData::create([
             'Step' => $nextStep,
             'Controller' => $this->owner,
         ]))->renderWith('DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep');
