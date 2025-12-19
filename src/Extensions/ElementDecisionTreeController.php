@@ -4,6 +4,7 @@ namespace DNADesign\SilverStripeElementalDecisionTree\Extensions;
 
 use SilverStripe\Control\Controller;
 use SilverStripe\View\ArrayData;
+use SilverStripe\View\Requirements;
 use SilverStripe\Core\Extension;
 use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep;
 use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer;
@@ -14,6 +15,20 @@ class ElementDecisionTreeController extends Extension
     private static $allowed_actions = [
         'getNextStepForAnswer'
     ];
+
+    public function onAfterInit()
+    {
+        Requirements::javascript('dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js');
+        Requirements::customCSS(
+            <<<CSS
+                .decisiontree .step-options input[type="radio"]:focus + label,
+                .decisiontree .step-options input[type="radio"]:focus-visible + label {
+                    outline: 2px solid currentColor;
+                    outline-offset: 2px;
+                }
+            CSS
+        );
+    }
 
     /**
     * Return the HTMl for the next step to be displayed
@@ -35,7 +50,7 @@ class ElementDecisionTreeController extends Extension
 
         if (!$answer || !$answer->exists()) {
             return $this->owner->httpError(
-                404, 
+                404,
                 $this->renderError('An error has occurred, please reload the page and try again!')
             );
         }
@@ -44,7 +59,7 @@ class ElementDecisionTreeController extends Extension
 
         if (!$nextStep || !$nextStep->exists()) {
             return $this->owner->httpError(
-                404, 
+                404,
                 $this->renderError('An error has occurred, please reload the page and try again!')
             );
         }
@@ -142,7 +157,7 @@ class ElementDecisionTreeController extends Extension
                     <span class="step-title">Sorry!</span>
                     <span class="step-content"><p>%s</p></span>
                 </div>
-            </div>', 
+            </div>',
             $message
         );
     }
