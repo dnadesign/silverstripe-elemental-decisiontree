@@ -18,13 +18,15 @@ class ElementDecisionTreeController extends Extension
 
     public function onAfterInit(): void
     {
-        Requirements::javascript(
-            'dnadesign/silverstripe-elemental-decisiontree:javascript/jquery.min.js'
-        );
-
-        Requirements::javascript(
-            'dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js',
-            ['defer' => true]
+        Requirements::javascript('dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js');
+        Requirements::customCSS(
+            <<<CSS
+                .decisiontree .step-options input[type="radio"]:focus + label,
+                .decisiontree .step-options input[type="radio"]:focus-visible + label {
+                    outline: 2px solid currentColor;
+                    outline-offset: 2px;
+                }
+            CSS
         );
     }
 
