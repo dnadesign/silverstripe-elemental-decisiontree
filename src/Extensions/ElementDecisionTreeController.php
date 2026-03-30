@@ -2,12 +2,14 @@
 
 namespace DNADesign\SilverStripeElementalDecisionTree\Extensions;
 
+use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer;
+use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep;
+use DNADesign\SilverStripeElementalDecisionTree\Model\ElementDecisionTree;
 use SilverStripe\Control\Controller;
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Extension;
 use SilverStripe\View\ArrayData;
 use SilverStripe\View\Requirements;
-use SilverStripe\Core\Extension;
-use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeStep;
-use DNADesign\SilverStripeElementalDecisionTree\Model\DecisionTreeAnswer;
 
 class ElementDecisionTreeController extends Extension
 {
@@ -16,18 +18,81 @@ class ElementDecisionTreeController extends Extension
         'getNextStepForAnswer'
     ];
 
+    /**
+     * Path to the JS file to load. Set to empty string to disable.
+     * Supports any path compatible with Requirements::javascript().
+     *
+     * @config
+     * @var string
+     */
+    private static $javascript = 'dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js';
+
+    /**
+     * Path to a CSS file to load. Set to empty string to disable.
+     *
+     * @config
+     * @var string
+     */
+    private static $css = 'dnadesign/silverstripe-elemental-decisiontree:css/decisiontree.css';
+
+    /**
+     * Whether to automatically detect if the current page has a decision
+     * tree element before loading assets. Set to false to load assets
+     * on all pages regardless.
+     *
+     * @config
+     * @var bool
+     */
+    private static $auto_detect = true;
+
+    /**
+     * Load decision tree assets based on configuration.
+     * By default, auto-detects whether the current page contains
+     * an ElementDecisionTree element before loading assets.
+     */
     public function onAfterInit()
     {
-        Requirements::javascript('dnadesign/silverstripe-elemental-decisiontree:javascript/decision-tree.src.js');
-        Requirements::customCSS(
-            <<<CSS
-                .decisiontree .step-options input[type="radio"]:focus + label,
-                .decisiontree .step-options input[type="radio"]:focus-visible + label {
-                    outline: 2px solid currentColor;
-                    outline-offset: 2px;
-                }
-            CSS
-        );
+        $config = $this->owner->config();
+        $javascript = $config->get('javascript');
+        $css = $config->get('css');
+
+        if (!$javascript && !$css) {
+            return;
+        }
+
+        if ($config->get('auto_detect')) {
+            if (!$this->owner->hasMethod('data')) {
+                return;
+            }
+
+            $record = $this->owner->data();
+
+            if (!$record || !$record->hasMethod('ElementalArea')) {
+                return;
+            }
+
+            $area = $record->ElementalArea();
+
+            if (!$area || !$area->exists()) {
+                return;
+            }
+
+            $hasDecisionTree = $area->Elements()
+                ->filter('ClassName', ClassInfo::subclassesFor(ElementDecisionTree::class))
+                ->exists();
+
+            if (!$hasDecisionTree) {
+                return;
+            }
+        }
+
+        if ($javascript) {
+            Requirements::javascript($javascript);
+        }
+
+        if ($css) {
+            Requirements::css($css);
+        }
     }
 
     /**
