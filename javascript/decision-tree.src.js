@@ -18,7 +18,7 @@
             // Clear first, then set - ensures announcement even if same text
             announcer.textContent = '';
             // Small delay ensures screen readers pick up the change
-            setTimeout(() => {
+            setTimeout(function() {
                 announcer.textContent = message;
             }, 50);
         }
