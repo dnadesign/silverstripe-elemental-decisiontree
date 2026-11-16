@@ -1,0 +1,5 @@
+.decisiontree .step-options input[type="radio"]:focus + label,
+.decisiontree .step-options input[type="radio"]:focus-visible + label {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
