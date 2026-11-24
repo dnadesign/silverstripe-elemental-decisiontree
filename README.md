@@ -35,7 +35,7 @@ SilverStripe\Control\Controller:
   javascript: 'app/javascript/my-decision-tree.js'
 ```
 
-Use your own CSS instead of the inline focus styles:
+Use your own CSS instead of the default focus styles:
 
 ```yaml
 SilverStripe\Control\Controller:
